@@ -7,7 +7,7 @@ The following snippets show sample usage:
 	TypeContainer typeC = TypeContainer.Instance;
 	typeC.Register<IList<string>, List<string>>();
 	
-	//Deep in the code
+	//deep inside the layers of the code
 	var list = typeC.GetInstance<IList<string>>();
 	list.Add("test");
 
