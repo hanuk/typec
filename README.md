@@ -3,15 +3,21 @@ TypeC is a simple .NET type container for resolving interfaces/abstract base cla
 
 The following snippets show sample usage:
 
-    TypeContainer typeC = TypeContainer.Instance;
+    //during the startup 
+	TypeContainer typeC = TypeContainer.Instance;
 	typeC.Register<IList<string>, List<string>>();
+	
+	//Deep in the code
 	var list = typeC.GetInstance<IList<string>>();
 	list.Add("test");
 
 With namespace support:
 	
+	//during the startup 
 	string namespace = "MyNamespace"; 
 	TypeContainer typeC = TypeContainer.Instance;
 	typeC.Register<IList<string>, List<string>>(namespace);
+
+	//deep inside the layers of the code
 	var list = typeC.GetInstance<IList<string>>(namespace);
 	list.Add("test"); 
