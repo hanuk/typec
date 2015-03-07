@@ -1,20 +1,14 @@
 ﻿/*  
- Copyright (c) Microsoft.  All rights reserved.  
-  
-Licensed under the Apache License, Version 2.0 (the "License");  
-you may not use this file except in compliance with the License.  
-You may obtain a copy of the License at //   http://www.apache.org/licenses/LICENSE-2.0  
-  
-Unless required by applicable law or agreed to in writing, software  
-distributed under the License is distributed on an "AS IS" BASIS,  
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
+Copyright (c) Microsoft.  All rights reserved.  Licensed under the MIT License.  See License.txt in the project root for license information 
 */
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace TypeC
 {
@@ -49,6 +43,14 @@ namespace TypeC
 		/// </summary>
 		private TypeContainer()
 		{
+			Reset();
+		}
+
+		/// <summary>
+		/// clears the container state for the purpose of testing; Add #IFDEBUG
+		/// </summary>
+		public void Reset()
+		{
 			_typeRegistry = new Dictionary<string, Dictionary<Type, Type>>();
 		}
 		/// <summary>
@@ -69,21 +71,10 @@ namespace TypeC
 		/// <param name="nameSpace"></param>
 		public void Register<TFromType, TToType>(string nameSpace)
 		{
-			if (!_typeRegistry.ContainsKey(nameSpace))
-			{
-				_typeRegistry.Add(nameSpace, new Dictionary<Type, Type>());
-			}
-			var registry = _typeRegistry[nameSpace];
 			Type from = typeof(TFromType);
 			Type to = typeof(TToType);
-			if (registry.ContainsKey(from))
-			{
-				registry[from] = to;
-			}
-			else
-			{
-				registry.Add(from, to);
-			}
+
+			Register(nameSpace, from, to);
 		}
 		/// <summary>
 		/// Creates instance of a .NET Type registered in a given namespace
@@ -133,5 +124,105 @@ namespace TypeC
 			string nameSpace = DEFAULT_NAMESPACE;
 			return GetInstance<TFromType>(nameSpace);
 		}
+		/// <summary>
+		/// Appends type mapping information into the current instance. use Reset()
+		/// before calling Load(fileName) for removing the previous type mapping information 
+		/// </summary>
+		/// <param name="fileName"></param>
+		public void Load(string fileName)
+		{
+			var typeMapList = GetTypeMap(fileName);
+			Load(typeMapList);
+		}
+		/// <summary>
+		/// Reads the file and returns the TypeMapItem list
+		/// </summary>
+		/// <param name="fileName">XML file containing type information</param>
+		/// <returns></returns>
+		private List<TypeMapItem> GetTypeMap(string fileName)
+		{
+			XDocument xdoc = XDocument.Load(fileName);
+			List<TypeMapItem> typeMapList = new List<TypeMapItem>();
+			foreach (var mapping in xdoc.Descendants("mapping"))
+			{
+				var ns = mapping.Attribute("namespace").Value;
+				var from = mapping.Attribute("from").Value;
+				var to = mapping.Attribute("to").Value;
+				typeMapList.Add(new TypeMapItem { Namespace = ns, FromTypeName = from, ToTypeName = to });
+			}
+			return typeMapList;
+		}
+		/// <summary>
+		/// Appends type mapping information into the current instance. use Reset()
+		/// before calling Load(typeMapItems) for removing the previous type mapping information 
+		/// </summary>
+		/// <param name="typeMapItems"></param>
+		public void Load(List<TypeMapItem> typeMapItems)
+		{
+			foreach (var typeMapItem in typeMapItems)
+			{
+				Load(typeMapItem);
+			}
+		}
+		/// <summary>
+		/// Appends a single type mapping  into the current instance. use Reset()
+		/// before calling Load(typeMapItem) for removing the previous type mapping information 
+		/// </summary>
+		/// <param name="typeMapItem"></param>
+		public void Load(TypeMapItem typeMapItem)
+		{
+			Type from = Type.GetType(typeMapItem.FromTypeName);
+			Type to = Type.GetType(typeMapItem.ToTypeName);
+
+			if (from == null || to == null)
+			{
+				throw new ApplicationException("From or To  not found");
+			}
+
+			string nameSpace = typeMapItem.Namespace;
+			if (nameSpace.Length == 0)
+			{
+				Register(from, to);
+			}
+			else
+			{
+				Register(nameSpace, from, to);
+			}
+		}
+		/// <summary>
+		/// Registers a type map into default namespace
+		/// </summary>
+		/// <param name="from"></param>
+		/// <param name="to"></param>
+		private void Register(Type from, Type to)
+		{
+			string nameSpace = DEFAULT_NAMESPACE;
+			Register(nameSpace, from, to);
+		}
+
+		/// <summary>
+		/// Registers a type map into a given namespace
+		/// </summary>
+		/// <param name="nameSpace"></param>
+		/// <param name="from"></param>
+		/// <param name="to"></param>
+		private void Register(string nameSpace, Type from, Type to)
+		{
+			if (!_typeRegistry.ContainsKey(nameSpace))
+			{
+				_typeRegistry.Add(nameSpace, new Dictionary<Type, Type>());
+			}
+			var registry = _typeRegistry[nameSpace];
+
+			if (registry.ContainsKey(from))
+			{
+				registry[from] = to;
+			}
+			else
+			{
+				registry.Add(from, to);
+			}
+		}
+		
 	}
 }
