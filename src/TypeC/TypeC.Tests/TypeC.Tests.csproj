@@ -38,6 +38,26 @@
     <Reference Include="System" />
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="TypeC, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\SharedLibs\TypeC.dll</HintPath>
+    </Reference>
+    <Reference Include="TypeC.Tests.Lib1, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\SharedLibs\TypeC.Tests.Lib1.dll</HintPath>
+    </Reference>
+    <Reference Include="TypeC.Tests.Lib2, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\SharedLibs\TypeC.Tests.Lib2.dll</HintPath>
+    </Reference>
+    <Reference Include="TypeC.Tests.Model, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\SharedLibs\TypeC.Tests.Model.dll</HintPath>
+    </Reference>
+    <Reference Include="TypeC.Tests.Shared, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\SharedLibs\TypeC.Tests.Shared.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -57,20 +77,6 @@
     <Compile Include="TestBuiltInTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestWithFileConfig.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\TypeC.Tests.Model\TypeC.Tests.Model.csproj">
-      <Project>{e2344a78-52b3-4c1a-ab14-37f0eceb3fe3}</Project>
-      <Name>TypeC.Tests.Model</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TypeC.Tests.Shared\TypeC.Tests.Shared.csproj">
-      <Project>{6169b3d5-92cf-414b-8f13-4ca554bd6a6b}</Project>
-      <Name>TypeC.Tests.Shared</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TypeC\TypeC.csproj">
-      <Project>{90b325c2-3f69-4894-8bd4-bbf4beab0766}</Project>
-      <Name>TypeC</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="TypeConfig.xml">
