@@ -4,10 +4,7 @@ Copyright (c) Microsoft.  All rights reserved.  Licensed under the MIT License. 
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace TypeC
@@ -174,11 +171,19 @@ namespace TypeC
 			Type from = Type.GetType(typeMapItem.FromTypeName);
 			Type to = Type.GetType(typeMapItem.ToTypeName);
 
+			//check if the types are resolved
 			if (from == null || to == null)
 			{
 				throw new ApplicationException("From or To  not found");
 			}
+			
+			//validate for default constructor and subtyping
+			if (!IsMappingValid(from, to))
+			{
+				throw new ApplicationException(string.Format("In {0} : can't assign {1} to {2}", MethodBase.GetCurrentMethod().Name, to.Name, from.Name ));
+			}
 
+			//if namespace is not found register into default namespace
 			string nameSpace = typeMapItem.Namespace;
 			if (nameSpace.Length == 0)
 			{
@@ -188,6 +193,28 @@ namespace TypeC
 			{
 				Register(nameSpace, from, to);
 			}
+		}
+
+		private static bool IsMappingValid(Type from, Type to)
+		{
+			//"from" has to be a class or an interface
+			if (!(from.IsClass || from.IsInterface))
+			{
+				return false;
+			}
+
+			if (!to.IsClass || to.GetConstructor(Type.EmptyTypes) == null)
+			{
+				return false; 
+			}
+
+			//"from" has to be a subtype of "to"
+			if(!from.IsAssignableFrom(to))
+			{
+				return false; 
+			}
+
+			return true; 
 		}
 		/// <summary>
 		/// Registers a type map into default namespace

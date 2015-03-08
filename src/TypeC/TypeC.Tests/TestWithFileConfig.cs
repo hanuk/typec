@@ -1,12 +1,7 @@
 ﻿/*
 Copyright (c) Microsoft.  All rights reserved.  Licensed under the MIT License.  See License.txt in the project root for license information
 */
-using System;
-using System.Text;
-using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Xml.Linq;
-using System.Diagnostics;
 using TypeC.Tests.Shared;
 using TypeC.Tests.Model;
 

@@ -10,20 +10,15 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
 */
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 /*
 Copyright (c) Microsoft.  All rights reserved.  Licensed under the MIT License.  See License.txt in the project root for license information
 */
-using System.Text;
-using System.Threading.Tasks;
 using TypeC.Tests.Shared;
 
 namespace TypeC.Tests
 {
-	class MyWriter : IWriter, IInitializer
+	public class MyWriter : IWriter, IInitializer
 	{
 
 		#region IWriter Members
@@ -43,5 +38,10 @@ namespace TypeC.Tests
 		}
 
 		#endregion
+	}
+
+	public class NotMyWriter
+	{
+		//used to test Type.IsAssignableFrom(Type to)
 	}
 }
