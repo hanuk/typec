@@ -5,6 +5,7 @@ Copyright (c) Microsoft.  All rights reserved.  Licensed under the MIT License. 
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
 using System.Xml.Linq;
 
 namespace TypeC
@@ -121,52 +122,79 @@ namespace TypeC
 			string nameSpace = DEFAULT_NAMESPACE;
 			return GetInstance<TFromType>(nameSpace);
 		}
+
+		public string GetRegistryAsXml()
+		{
+			return ConfigUtility.GetXml(_typeRegistry);
+		}
 		/// <summary>
 		/// Appends type mapping information into the current instance. use Reset()
 		/// before calling Load(fileName) for removing the previous type mapping information 
 		/// </summary>
 		/// <param name="fileName"></param>
-		public void Load(string fileName)
+		public void LoadFromFile(string fileName)
 		{
-			var typeMapList = GetTypeMap(fileName);
+			var typeMapList = ConfigUtility.GetTypeMapFromFile(fileName);
 			Load(typeMapList);
 		}
+
 		/// <summary>
-		/// Reads the file and returns the TypeMapItem list
+		/// xml as a string
 		/// </summary>
-		/// <param name="fileName">XML file containing type information</param>
-		/// <returns></returns>
-		private List<TypeMapItem> GetTypeMap(string fileName)
+		/// <param name="xmlConfig"></param>
+		public void LoadFromString(string xmlConfig)
 		{
-			XDocument xdoc = XDocument.Load(fileName);
-			List<TypeMapItem> typeMapList = new List<TypeMapItem>();
-			foreach (var mapping in xdoc.Descendants("mapping"))
-			{
-				var ns = mapping.Attribute("namespace").Value;
-				var from = mapping.Attribute("from").Value;
-				var to = mapping.Attribute("to").Value;
-				typeMapList.Add(new TypeMapItem { Namespace = ns, FromTypeName = from, ToTypeName = to });
-			}
-			return typeMapList;
+			var typeMapList = ConfigUtility.GetTypeMapFromString(xmlConfig);
+			Load(typeMapList);
 		}
+
 		/// <summary>
 		/// Appends type mapping information into the current instance. use Reset()
 		/// before calling Load(typeMapItems) for removing the previous type mapping information 
 		/// </summary>
 		/// <param name="typeMapItems"></param>
-		public void Load(List<TypeMapItem> typeMapItems)
+		public void Load(List<TypeMapConfigItem> typeMapItems)
 		{
 			foreach (var typeMapItem in typeMapItems)
 			{
 				Load(typeMapItem);
 			}
 		}
+
+		/// <summary>
+		/// checks if the "from" is a subtype of "to"
+		/// </summary>
+		/// <param name="from"></param>
+		/// <param name="to"></param>
+		/// <returns></returns>
+		public static bool IsMappingValid(Type from, Type to)
+		{
+			//"from" has to be a class or an interface
+			if (!(from.IsClass || from.IsInterface))
+			{
+				return false;
+			}
+
+			if (!to.IsClass || to.GetConstructor(Type.EmptyTypes) == null)
+			{
+				return false;
+			}
+
+			//"from" has to be a subtype of "to"
+			if (!from.IsAssignableFrom(to))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
 		/// <summary>
 		/// Appends a single type mapping  into the current instance. use Reset()
 		/// before calling Load(typeMapItem) for removing the previous type mapping information 
 		/// </summary>
 		/// <param name="typeMapItem"></param>
-		public void Load(TypeMapItem typeMapItem)
+		private void Load(TypeMapConfigItem typeMapItem)
 		{
 			Type from = Type.GetType(typeMapItem.FromTypeName);
 			Type to = Type.GetType(typeMapItem.ToTypeName);
@@ -195,27 +223,6 @@ namespace TypeC
 			}
 		}
 
-		private static bool IsMappingValid(Type from, Type to)
-		{
-			//"from" has to be a class or an interface
-			if (!(from.IsClass || from.IsInterface))
-			{
-				return false;
-			}
-
-			if (!to.IsClass || to.GetConstructor(Type.EmptyTypes) == null)
-			{
-				return false; 
-			}
-
-			//"from" has to be a subtype of "to"
-			if(!from.IsAssignableFrom(to))
-			{
-				return false; 
-			}
-
-			return true; 
-		}
 		/// <summary>
 		/// Registers a type map into default namespace
 		/// </summary>

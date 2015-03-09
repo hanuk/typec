@@ -66,7 +66,7 @@ namespace TypeC.Tests
 			string fileName = "TypeConfig.xml";
 			TypeContainer tc = TypeContainer.Instance;
 			tc.Reset();
-			tc.Load(fileName);
+			tc.LoadFromFile(fileName);
 			IWriter writer1 = tc.GetInstance<IWriter>("writer1");
 			IWriter writer2 = tc.GetInstance<IWriter>("writer2");
 
@@ -81,7 +81,7 @@ namespace TypeC.Tests
 			string fileName = "TypeConfig.xml";
 			TypeContainer tc = TypeContainer.Instance;
 			tc.Reset();
-			tc.Load(fileName);
+			tc.LoadFromFile(fileName);
 			IGenericWriter<string> writer1 = tc.GetInstance<IGenericWriter<string>>("gwriter1");
 			IGenericWriter<string> writer2 = tc.GetInstance<IGenericWriter<string>>("gwriter2");
 			Assert.AreNotEqual(writer1, null);
@@ -94,7 +94,7 @@ namespace TypeC.Tests
 			string fileName = "TypeConfig.xml";
 			TypeContainer tc = TypeContainer.Instance;
 			tc.Reset();
-			tc.Load(fileName);
+			tc.LoadFromFile(fileName);
 			IGenericWriter<MyClass> writer1 = tc.GetInstance<IGenericWriter<MyClass>>("gwriter3");
 			writer1.Write(new MyClass());
 			IGenericWriter<MyClass> writer2 = tc.GetInstance<IGenericWriter<MyClass>>("gwriter4");
