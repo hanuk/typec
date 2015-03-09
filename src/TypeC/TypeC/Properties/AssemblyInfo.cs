@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("TypeC")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyDescription("TypeC IS Simple dependency resolver that supports code as well as congiruation based type mapping. TypeC also support generics.")]
+[assembly: AssemblyConfiguration("Release")]
+[assembly: AssemblyCompany("Microsoft")]
 [assembly: AssemblyProduct("TypeC")]
-[assembly: AssemblyCopyright("MIT License")]
+[assembly: AssemblyCopyright("Copyright (c) Microsoft")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
