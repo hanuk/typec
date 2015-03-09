@@ -14,7 +14,7 @@ namespace TypeC
 		{
 			string typeMapTemplate = "<mapping namespace=\"{0}\" from=\"{1}\" to=\"{2}\"/>\n";
 			StringBuilder sb = new StringBuilder();
-			sb.Append("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
+			//sb.Append("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
 			sb.Append("<typecmap>\n");
 
 			foreach (var nameSpace in typeRegistry.Keys)
@@ -22,8 +22,9 @@ namespace TypeC
 				var typeMapDictionary = typeRegistry[nameSpace];
 				foreach (var fromType in typeMapDictionary.Keys)
 				{
-					string fromTypeName = fromType.FullName;
-					string toTypeName = typeMapDictionary[fromType].FullName;
+					string fromTypeName = fromType.FullName + ", " + fromType.Assembly.FullName;
+					Type toType = typeMapDictionary[fromType];
+					string toTypeName = toType.FullName + ", " + toType.Assembly.FullName;
 
 					sb.Append(string.Format(typeMapTemplate, nameSpace, fromTypeName, toTypeName));
 				}

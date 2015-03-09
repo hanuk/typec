@@ -196,19 +196,25 @@ namespace TypeC
 		/// <param name="typeMapItem"></param>
 		private void Load(TypeMapConfigItem typeMapItem)
 		{
+			//check if "from" is resolved
 			Type from = Type.GetType(typeMapItem.FromTypeName);
+			if (from == null)
+			{
+				throw new TypeResolutionException("from Type could not be resolved; Type name: " + typeMapItem.FromTypeName);
+			}
+
+			//check if "to" is resolved
 			Type to = Type.GetType(typeMapItem.ToTypeName);
 
-			//check if the types are resolved
-			if (from == null || to == null)
+			if (to == null)
 			{
-				throw new ApplicationException("From or To  not found");
+				throw new TypeResolutionException("to Type could not be resolved; Type name: " + typeMapItem.ToTypeName);
 			}
 			
 			//validate for default constructor and subtyping
 			if (!IsMappingValid(from, to))
 			{
-				throw new ApplicationException(string.Format("In {0} : can't assign {1} to {2}", MethodBase.GetCurrentMethod().Name, to.Name, from.Name ));
+				throw new TypeResolutionException(string.Format("In {0} : can't assign {1} to {2}", MethodBase.GetCurrentMethod().Name, to.Name, from.Name));
 			}
 
 			//if namespace is not found register into default namespace

@@ -76,7 +76,7 @@
     <Compile Include="TestCustomTypes.cs" />
     <Compile Include="TestBuiltInTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestWithFileConfig.cs" />
+    <Compile Include="TestWithConfig.cs" />
     <Compile Include="TestConfigGeneration.cs" />
   </ItemGroup>
   <ItemGroup>

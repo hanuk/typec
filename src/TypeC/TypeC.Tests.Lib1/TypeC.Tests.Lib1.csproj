@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Lib1GenericConverter.cs" />
     <Compile Include="Lib1GenericWriter2.cs" />
     <Compile Include="Lib1GenericWriter1.cs" />
     <Compile Include="MockClasses.cs" />

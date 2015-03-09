@@ -7,4 +7,5 @@
 	<mapping namespace="gwriter2" from="TypeC.Tests.Shared.IGenericWriter`1[[System.String, mscorlib]], TypeC.Tests.Shared" to ="TypeC.Tests.Lib2.Lib2GenericWriter1, TypeC.Tests.Lib2"/>
 	<mapping namespace="gwriter3" from="TypeC.Tests.Shared.IGenericWriter`1[[TypeC.Tests.Model.MyClass, TypeC.Tests.Model]], TypeC.Tests.Shared" to ="TypeC.Tests.Lib1.Lib1GenericWriter2, TypeC.Tests.Lib1"/>
 	<mapping namespace="gwriter4" from="TypeC.Tests.Shared.IGenericWriter`1[[TypeC.Tests.Model.MyClass, TypeC.Tests.Model]], TypeC.Tests.Shared" to ="TypeC.Tests.Lib2.Lib2GenericWriter2, TypeC.Tests.Lib2"/>
+	<mapping namespace="DEFAULT" from="TypeC.Tests.Shared.IGenericConverter`2[[TypeC.Tests.Model.MyClass2, TypeC.Tests.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[TypeC.Tests.Model.MyClass1, TypeC.Tests.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], TypeC.Tests.Shared" to="TypeC.Tests.Lib1.Lib1GenericConverter, TypeC.Tests.Lib1"/>
 </typecmap>

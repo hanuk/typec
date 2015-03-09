@@ -25,17 +25,22 @@ With namespace support:
 	list.Add("test"); 
 
 Loading type mapping from a configuration file:
+
 	//during the startup
 	string fileName = "TypeConfig.xml";
 	TypeContainer tc = TypeContainer.Instance;
 	tc.Reset();
+	//the Load(fileName) will fail if types can't be resolved 
 	tc.Load(fileName);
 	
+
 	//deep inside the layers of the code
 	IGenericWriter<MyClass> writer1 = tc.GetInstance<IGenericWriter<MyClass>>("gwriter3");
 	writer1.Write(new MyClass());
 	IGenericWriter<MyClass> writer2 = tc.GetInstance<IGenericWriter<MyClass>>("gwriter4");
 
-Sample XML configuration file is located in TypeC.Tests project. The file follows standard reflection notation: 
+Sample XML configuration file is located in TypeC.Tests project. The file follows the standard reflection notation: 
 [https://msdn.microsoft.com/en-us/library/w3f99sx1(v=vs.110).aspx](https://msdn.microsoft.com/en-us/library/w3f99sx1(v=vs.110).aspx "Text Notation for Describing .NET Type")
+
+TypeC.GetRegistryAsXml() will dump the registry for easy configuration file creation and debugging.
 
