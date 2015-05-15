@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--Copyright (c) Microsoft.  All rights reserved.  Licensed under the MIT License.  See License.txt in the project root for license information-->
+<typecmap>
+  <probinglibpath path="C:\ws\dev\vso\hkcorp\util\typec\src\TypeC\SharedLibs\"/>
+  <probinglibpath path="C:\ws\dev\vso\hkcorp\util\typec\src\TypeC\SharedLibs2\"/>
+  <probinglibpath path="C:\ws\dev\vso\hkcorp\util\typec\src\TypeC\SharedLibs3\"/>
+  <mapping namespace="DEFAULT" from="TypeC.Tests.Shared.IWriter,TypeC.Tests.Shared" to="TypeC.Tests.Lib5.ParentObject, TypeC.Tests.Lib5"/>
+</typecmap>

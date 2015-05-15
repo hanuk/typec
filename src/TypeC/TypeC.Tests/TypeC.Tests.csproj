@@ -38,26 +38,6 @@
     <Reference Include="System" />
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="TypeC, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\SharedLibs\TypeC.dll</HintPath>
-    </Reference>
-    <Reference Include="TypeC.Tests.Lib1, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\SharedLibs\TypeC.Tests.Lib1.dll</HintPath>
-    </Reference>
-    <Reference Include="TypeC.Tests.Lib2, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\SharedLibs\TypeC.Tests.Lib2.dll</HintPath>
-    </Reference>
-    <Reference Include="TypeC.Tests.Model, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\SharedLibs\TypeC.Tests.Model.dll</HintPath>
-    </Reference>
-    <Reference Include="TypeC.Tests.Shared, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\SharedLibs\TypeC.Tests.Shared.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -72,17 +52,57 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="TestExternalPath2.cs" />
     <Compile Include="MockClasses.cs" />
     <Compile Include="TestCustomTypes.cs" />
     <Compile Include="TestBuiltInTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestExternalPath.cs" />
     <Compile Include="TestWithConfig.cs" />
     <Compile Include="TestConfigGeneration.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="TypeConfig_External_dependency_multipath2.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TypeConfig_External_dependency_multipath.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TypeConfig_External_dependency_NoPath.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="TypeConfig_External_dependency.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TypeConfig_External.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="TypeConfig.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TypeC.Tests.Lib1\TypeC.Tests.Lib1.csproj">
+      <Project>{9a99ecaf-389a-4cb5-b07f-adb3746e4e96}</Project>
+      <Name>TypeC.Tests.Lib1</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TypeC.Tests.Lib2\TypeC.Tests.Lib2.csproj">
+      <Project>{6f62784c-f0aa-4e24-bc32-ece3c485653f}</Project>
+      <Name>TypeC.Tests.Lib2</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TypeC.Tests.Model\TypeC.Tests.Model.csproj">
+      <Project>{e2344a78-52b3-4c1a-ab14-37f0eceb3fe3}</Project>
+      <Name>TypeC.Tests.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TypeC.Tests.Shared\TypeC.Tests.Shared.csproj">
+      <Project>{6169b3d5-92cf-414b-8f13-4ca554bd6a6b}</Project>
+      <Name>TypeC.Tests.Shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TypeC\TypeC.csproj">
+      <Project>{90b325c2-3f69-4894-8bd4-bbf4beab0766}</Project>
+      <Name>TypeC</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

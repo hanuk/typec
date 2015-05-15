@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!--Copyright (c) Microsoft.  All rights reserved.  Licensed under the MIT License.  See License.txt in the project root for license information-->
 <typecmap>
-  <assemblypath path="C:\ws\dev\hkcorp\util\typec\src\TypeC\SharedLibs\">
-    <filename name="TypeC.Tests.Lib3.dll"/>
-  </assemblypath>
-	<mapping namespace="writer1" from="TypeC.Tests.Shared.IWriter,TypeC.Tests.Shared" to="TypeC.Tests.Lib1.Lib1Writer1, TypeC.Tests.Lib1"/>
+  <probinglibpath path="C:\ws\dev\vso\hkcorp\util\typec\src\TypeC\SharedLibs\"/>
+  <mapping namespace="interface1" from="TypeC.Tests.Shared.Interface1, TypeC.Tests.Shared" to="TypeC.Tests.Lib3.DependentClass, TypeC.Tests.Lib3, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"/>
+  <mapping namespace="writer1" from="TypeC.Tests.Shared.IWriter,TypeC.Tests.Shared" to="TypeC.Tests.Lib1.Lib1Writer1, TypeC.Tests.Lib1"/>
 	<mapping namespace="writer2" from="TypeC.Tests.Shared.IWriter,TypeC.Tests.Shared" to="TypeC.Tests.Lib1.Lib1Writer2, TypeC.Tests.Lib1"/>
 	<mapping namespace="gwriter1" from="TypeC.Tests.Shared.IGenericWriter`1[[System.String, mscorlib]], TypeC.Tests.Shared" to ="TypeC.Tests.Lib1.Lib1GenericWriter1, TypeC.Tests.Lib1"/>
 	<mapping namespace="gwriter2" from="TypeC.Tests.Shared.IGenericWriter`1[[System.String, mscorlib]], TypeC.Tests.Shared" to ="TypeC.Tests.Lib2.Lib2GenericWriter1, TypeC.Tests.Lib2"/>
 	<mapping namespace="gwriter3" from="TypeC.Tests.Shared.IGenericWriter`1[[TypeC.Tests.Model.MyClass, TypeC.Tests.Model]], TypeC.Tests.Shared" to ="TypeC.Tests.Lib1.Lib1GenericWriter2, TypeC.Tests.Lib1"/>
 	<mapping namespace="gwriter4" from="TypeC.Tests.Shared.IGenericWriter`1[[TypeC.Tests.Model.MyClass, TypeC.Tests.Model]], TypeC.Tests.Shared" to ="TypeC.Tests.Lib2.Lib2GenericWriter2, TypeC.Tests.Lib2"/>
 	<mapping namespace="DEFAULT" from="TypeC.Tests.Shared.IGenericConverter`2[[TypeC.Tests.Model.MyClass2, TypeC.Tests.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[TypeC.Tests.Model.MyClass1, TypeC.Tests.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], TypeC.Tests.Shared" to="TypeC.Tests.Lib1.Lib1GenericConverter, TypeC.Tests.Lib1"/>
+  <mapping namespace="gwriter5" from="TypeC.Tests.Shared.IGenericWriter`1[[System.String, mscorlib]], TypeC.Tests.Shared" to ="TypeC.Tests.Lib3.Lib3GenericWriter1, TypeC.Tests.Lib3"/>
+  <mapping namespace="gwriter6" from="TypeC.Tests.Shared.IGenericWriter`1[[TypeC.Tests.Model.MyClass, TypeC.Tests.Model]], TypeC.Tests.Shared" to ="TypeC.Tests.Lib3.Lib3GenericWriter2, TypeC.Tests.Lib3"/>
 </typecmap>

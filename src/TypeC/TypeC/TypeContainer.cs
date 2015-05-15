@@ -3,6 +3,8 @@ Copyright (c) Microsoft.  All rights reserved.  Licensed under the MIT License. 
 */
 
 using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
@@ -24,10 +26,11 @@ namespace TypeC
 		/// </summary>
 		private static TypeContainer _instance = new TypeContainer();
 		/// <summary>
-		/// Registered types are stored in nested dictionaries 
+		/// Registered types are stored in nested dictionaries after validating if these can be resolved
 		/// </summary>
-		private Dictionary<string, Dictionary<Type, Type>> _typeRegistry;
-
+        private ResolvedTypeRegistry _resolvedTypeRegistry = new ResolvedTypeRegistry();
+        private TypeConfiguration _typeConfig = new TypeConfiguration();
+        private Hashtable _assemblyCache; 
 		/// <summary>
 		/// static reference that is part of the singleton implementation
 		/// </summary>
@@ -39,18 +42,56 @@ namespace TypeC
 		/// <summary>
 		/// private constructor for singleton implementation
 		/// </summary>
-		private TypeContainer()
+		public  TypeContainer()
 		{
 			Reset();
+            _assemblyCache = new Hashtable();
+            AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolveHandler;
 		}
+        /// <summary>
+        /// Resolves assemblies from the custom probing paths managed by TypeConfiguration
+        /// </summary>
+        /// <param name="sender">Program that is trying to resolve the assembly</param>
+        /// <param name="args">Containes name of the assembly to be resolved and the name of the referencing assembly</param>
+        /// <returns></returns>
+        Assembly AssemblyResolveHandler(object sender, ResolveEventArgs args)
+        {
+            //convert it to short name
+            string shortName = args.Name;
+            if (shortName.IndexOf("Version=") != -1)
+            {
+                shortName = shortName.Substring(0, shortName.IndexOf(","));
+            }
+            if (_assemblyCache.Contains(shortName))
+            {
+                return (Assembly)_assemblyCache[shortName];
+            }
+            string dllPathName = _typeConfig.GetAssemblyPath(shortName);
+            if (dllPathName == null)
+            {
+                return null; 
+            }
+            Assembly asm = Assembly.LoadFile(dllPathName);
+            _assemblyCache.Add(shortName, asm);
+            return asm;  
+        }
 
 		/// <summary>
 		/// clears the container state for the purpose of testing; Add #IFDEBUG
 		/// </summary>
 		public void Reset()
 		{
-			_typeRegistry = new Dictionary<string, Dictionary<Type, Type>>();
+            _resolvedTypeRegistry = new ResolvedTypeRegistry();
+            _typeConfig = new TypeConfiguration();
 		}
+        /// <summary>
+        /// add the directory name to the list of directories from which the assemblies are resolved
+        /// </summary>
+        /// <param name="assemblyPath"></param>
+        public void AddAssemblyProbingPath(string assemblyPath)
+        {
+            _typeConfig.ProbingAssemblyPathList.Add(new ProbingAssemblyDirectory { DirectoryName = assemblyPath });
+        }
 		/// <summary>
 		/// Registers .NET Type objects into DEFAULT namespace
 		/// </summary>
@@ -72,7 +113,7 @@ namespace TypeC
 			Type from = typeof(TFromType);
 			Type to = typeof(TToType);
 
-			Register(nameSpace, from, to);
+            _resolvedTypeRegistry.Register(nameSpace, from, to);
 		}
 		/// <summary>
 		/// Creates instance of a .NET Type registered in a given namespace
@@ -82,9 +123,9 @@ namespace TypeC
 		/// <returns>Null the object or Null if not found</returns>
 		public TFromType GetInstance<TFromType>(string nameSpace) where TFromType : class
 		{
-			if (_typeRegistry.ContainsKey(nameSpace))
+			if (_resolvedTypeRegistry.TypeRegistry.ContainsKey(nameSpace))
 			{
-				return GetInstance<TFromType>(_typeRegistry[nameSpace]);
+                return GetInstance<TFromType>(_resolvedTypeRegistry.TypeRegistry[nameSpace]);
 			}
 			else
 			{
@@ -98,7 +139,7 @@ namespace TypeC
 		/// <typeparam name="TFromType">The abstract Type</typeparam>
 		/// <typeparam name="TToType">The concrete Type</typeparam>
 		/// <returns>Null the object or null if not found</returns>
-		private TFromType GetInstance<TFromType>(Dictionary<Type, Type> typeRegistry) where TFromType : class
+		private TFromType GetInstance<TFromType>(ConcurrentDictionary<Type, Type> typeRegistry) where TFromType : class
 		{
 			Type from = typeof(TFromType);
 			if (typeRegistry.ContainsKey(from))
@@ -125,17 +166,23 @@ namespace TypeC
 
 		public string GetRegistryAsXml()
 		{
-			return ConfigUtility.GetXml(_typeRegistry);
+            //return ConfigUtility.GetXml(_resolvedTypeRegistry.TypeRegistry);
+            StringBuilder sb = new StringBuilder();
+            sb.Append(_typeConfig.GetProbingDirectoryListAsXml());
+            sb.Append(_resolvedTypeRegistry.GetResolvedTypeRegistryAsXml());
+            return sb.ToString();
 		}
 		/// <summary>
 		/// Appends type mapping information into the current instance. use Reset()
 		/// before calling Load(fileName) for removing the previous type mapping information 
 		/// </summary>
 		/// <param name="fileName"></param>
-		public void LoadFromFile(string fileName)
+        /// <param name="replace">the default is "false" which appends to the existing type map; "true" will replace the contents</param>
+		public void LoadFromFile(string fileName, bool replace = false)
 		{
-			var typeMapList = ConfigUtility.GetTypeMapFromFile(fileName);
-			Load(typeMapList);
+            _typeConfig.LoadFromFile(fileName);
+            UpdateRegistry(_typeConfig.TypeMapList);
+
 		}
 
 		/// <summary>
@@ -144,8 +191,9 @@ namespace TypeC
 		/// <param name="xmlConfig"></param>
 		public void LoadFromString(string xmlConfig)
 		{
-			var typeMapList = ConfigUtility.GetTypeMapFromString(xmlConfig);
-			Load(typeMapList);
+            //var typeMapList = ConfigUtility.GetTypeMapFromString(xmlConfig);
+            _typeConfig.Load(xmlConfig);
+            UpdateRegistry(_typeConfig.TypeMapList);
 		}
 
 		/// <summary>
@@ -153,12 +201,22 @@ namespace TypeC
 		/// before calling Load(typeMapItems) for removing the previous type mapping information 
 		/// </summary>
 		/// <param name="typeMapItems"></param>
-		public void Load(List<TypeMapConfigItem> typeMapItems)
+		public void UpdateRegistry(List<TypeMapConfigItem> typeMapItems)
 		{
 			foreach (var typeMapItem in typeMapItems)
 			{
-				Load(typeMapItem);
+				ResolveType(typeMapItem);
 			}
+
+            if (this.Errors.Length > 0)
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach(string error in this.Errors)
+                {
+                    sb.AppendLine(error);
+                }
+                throw new TypeLoadException(string.Format("Can't resolve some types; error list: {0}", sb.ToString()));
+            }
 		}
 
 		/// <summary>
@@ -188,81 +246,64 @@ namespace TypeC
 
 			return true;
 		}
-
+        public string[] Errors
+        {
+            get
+            {
+                return _resolvedTypeRegistry.Errors.ToArray();   
+            }
+        }
 		/// <summary>
 		/// Appends a single type mapping  into the current instance. use Reset()
 		/// before calling Load(typeMapItem) for removing the previous type mapping information 
 		/// </summary>
 		/// <param name="typeMapItem"></param>
-		private void Load(TypeMapConfigItem typeMapItem)
+		private void ResolveType(TypeMapConfigItem typeMapItem)
 		{
+            string exceptionMessage = string.Empty;
 			//check if "from" is resolved
 			Type from = Type.GetType(typeMapItem.FromTypeName);
-			if (from == null)
-			{
-				throw new TypeResolutionException("from Type could not be resolved; Type name: " + typeMapItem.FromTypeName);
-			}
 
 			//check if "to" is resolved
 			Type to = Type.GetType(typeMapItem.ToTypeName);
 
+
+            if (from == null)
+            {
+                exceptionMessage = string.Format("{0}: could not be resolved", typeMapItem.FromTypeName);
+                _resolvedTypeRegistry.Errors.Add(exceptionMessage);
+            }
+
 			if (to == null)
 			{
-				throw new TypeResolutionException("to Type could not be resolved; Type name: " + typeMapItem.ToTypeName);
+                exceptionMessage = string.Format("{0}: could not be resolved", typeMapItem.ToTypeName);
+                _resolvedTypeRegistry.Errors.Add(exceptionMessage);
 			}
-			
+            if (from == null || to == null)
+            {
+                //no point in processing further
+                return; 
+            }
 			//validate for default constructor and subtyping
 			if (!IsMappingValid(from, to))
 			{
-				throw new TypeResolutionException(string.Format("In {0} : can't assign {1} to {2}", MethodBase.GetCurrentMethod().Name, to.Name, from.Name));
+                exceptionMessage = string.Format("Can't cast {1} to {2}", to.Name, from.Name);
+                _resolvedTypeRegistry.Errors.Add(exceptionMessage);
 			}
 
+            if (_resolvedTypeRegistry.Errors.Count != 0)
+            {
+                return; 
+            }
 			//if namespace is not found register into default namespace
-			string nameSpace = typeMapItem.Namespace;
-			if (nameSpace.Length == 0)
+            if (typeMapItem.Namespace.Length == 0)
 			{
-				Register(from, to);
+                _resolvedTypeRegistry.Register(DEFAULT_NAMESPACE,from, to);
 			}
 			else
 			{
-				Register(nameSpace, from, to);
+                _resolvedTypeRegistry.Register(typeMapItem.Namespace, from, to);
 			}
 		}
-
-		/// <summary>
-		/// Registers a type map into default namespace
-		/// </summary>
-		/// <param name="from"></param>
-		/// <param name="to"></param>
-		private void Register(Type from, Type to)
-		{
-			string nameSpace = DEFAULT_NAMESPACE;
-			Register(nameSpace, from, to);
-		}
-
-		/// <summary>
-		/// Registers a type map into a given namespace
-		/// </summary>
-		/// <param name="nameSpace"></param>
-		/// <param name="from"></param>
-		/// <param name="to"></param>
-		private void Register(string nameSpace, Type from, Type to)
-		{
-			if (!_typeRegistry.ContainsKey(nameSpace))
-			{
-				_typeRegistry.Add(nameSpace, new Dictionary<Type, Type>());
-			}
-			var registry = _typeRegistry[nameSpace];
-
-			if (registry.ContainsKey(from))
-			{
-				registry[from] = to;
-			}
-			else
-			{
-				registry.Add(from, to);
-			}
-		}
-		
 	}
 }

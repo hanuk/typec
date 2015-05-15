@@ -62,7 +62,7 @@ namespace TypeC.Tests
 		#endregion
 
 		[TestMethod]
-		public void LoadFromFile()
+		public void Config_LoadFromFile()
 		{
 			string fileName = "TypeConfig.xml";
 			TypeContainer tc = TypeContainer.Instance;
@@ -77,7 +77,7 @@ namespace TypeC.Tests
 
 
 		[TestMethod]
-		public void TestGenericsWithBuiltInTypes()
+		public void Config_TestGenericsWithBuiltInTypes()
 		{
 			string fileName = "TypeConfig.xml";
 			TypeContainer tc = TypeContainer.Instance;
@@ -90,7 +90,7 @@ namespace TypeC.Tests
 		}
 
 		[TestMethod]
-		public void TestGenericsWithCustomTypes()
+		public void Config_TestGenericsWithCustomTypes()
 		{
 			string fileName = "TypeConfig.xml";
 			TypeContainer tc = TypeContainer.Instance;
@@ -105,7 +105,7 @@ namespace TypeC.Tests
 		}
 
 		[TestMethod]
-		public void TestGenericsWithNestedCustomTypes()
+		public void Config_TestGenericsWithNestedCustomTypes()
 		{
 			TypeContainer tc = TypeContainer.Instance;
 			tc.Register<IGenericConverter<MyClass2, MyClass1>, TypeC.Tests.Lib1.Lib1GenericConverter>();
@@ -115,7 +115,7 @@ namespace TypeC.Tests
 		}
 
 		[TestMethod]
-		public void TestGenericsWithNestedCustomTypesFromConfig()
+		public void Config_TestGenericsWithNestedCustomTypesFromConfig()
 		{
 			string fileName = "TypeConfig.xml";
 			TypeContainer tc = TypeContainer.Instance;
@@ -128,42 +128,45 @@ namespace TypeC.Tests
 		}
 
 		[TestMethod]
-		public void TestGenericsWithNestedCustomTypesAndInlineXml()
+		public void Config_TestGenericsWithNestedCustomTypesAndInlineXml()
 		{
-			TypeContainer tc = TypeContainer.Instance;
-			tc.Register<IGenericConverter<MyClass2, MyClass1>, TypeC.Tests.Lib1.Lib1GenericConverter>();
-			tc.Register<IGenericConverter<MyClass2, MyClass1>, TypeC.Tests.Lib2.Lib2GenericConverter>("Lib2");
-			IGenericConverter<MyClass2, MyClass1> gc1 = tc.GetInstance<IGenericConverter<MyClass2, MyClass1>>();
-			IGenericConverter<MyClass2, MyClass1> gc2 = tc.GetInstance<IGenericConverter<MyClass2, MyClass1>>("Lib2");
-			Assert.AreNotEqual(null, gc1);
-			Assert.AreNotEqual(null, gc2);
+            TypeContainer tc = TypeContainer.Instance;
+            tc.Reset();
+            tc.Register<IGenericConverter<MyClass2, MyClass1>, TypeC.Tests.Lib1.Lib1GenericConverter>();
+            tc.Register<IGenericConverter<MyClass2, MyClass1>, TypeC.Tests.Lib2.Lib2GenericConverter>("Lib2");
+            IGenericConverter<MyClass2, MyClass1> gc1 = tc.GetInstance<IGenericConverter<MyClass2, MyClass1>>();
+            IGenericConverter<MyClass2, MyClass1> gc2 = tc.GetInstance<IGenericConverter<MyClass2, MyClass1>>("Lib2");
+            Assert.AreNotEqual(null, gc1);
+            Assert.AreNotEqual(null, gc2);
 
-			string xml = tc.GetRegistryAsXml();
-			tc.Reset();
-			tc.LoadFromString(xml);
-			IGenericConverter<MyClass2, MyClass1> gc3= tc.GetInstance<IGenericConverter<MyClass2, MyClass1>>();
-			IGenericConverter<MyClass2, MyClass1> gc4 = tc.GetInstance<IGenericConverter<MyClass2, MyClass1>>("Lib2");
-			Assert.AreNotEqual(null, gc3);
-			Assert.AreNotEqual(null, gc4);
+            string xml = tc.GetRegistryAsXml();
+            tc.Reset();
+            tc.LoadFromString(xml);
+            IGenericConverter<MyClass2, MyClass1> gc3 = tc.GetInstance<IGenericConverter<MyClass2, MyClass1>>();
+            IGenericConverter<MyClass2, MyClass1> gc4 = tc.GetInstance<IGenericConverter<MyClass2, MyClass1>>("Lib2");
+            Assert.AreNotEqual(null, gc3);
+            Assert.AreNotEqual(null, gc4);
 		}
 		[TestMethod]
-		[ExpectedException(typeof(TypeResolutionException))]
-		public void TestInvalidFromType()
+        [ExpectedException(typeof(TypeLoadException))]
+		public void Config_TestInvalidFromType()
 		{
 			//"from" doesn't specify the assembly name
 			string xml = "<mapping namespace=\"DEFAULT\" from=\"TypeC.Tests.Shared.IGenericConverter`2[[TypeC.Tests.Model.MyClass2, TypeC.Tests.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[TypeC.Tests.Model.MyClass1, TypeC.Tests.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]\" to=\"TypeC.Tests.Lib1.Lib1GenericConverter, TypeC.Tests.Lib1\"/>";
 			TypeContainer tc = TypeContainer.Instance;
 			tc.LoadFromString(xml);
+            //Assert.AreNotEqual(0, tc.Errors.Length);
 		}
 
 		[TestMethod]
-		[ExpectedException(typeof(TypeResolutionException))]
-		public void TestInvalidToType()
+        [ExpectedException(typeof(TypeLoadException))]
+		public void Config_TestInvalidToType()
 		{
 			//"to" doesn't specify the assembly name
 			string xml = "<mapping namespace=\"DEFAULT\" from=\"TypeC.Tests.Shared.IGenericConverter`2[[TypeC.Tests.Model.MyClass2, TypeC.Tests.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[TypeC.Tests.Model.MyClass1, TypeC.Tests.Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], TypeC.Tests.Shared\" to=\"TypeC.Tests.Lib1.Lib1GenericConverter\"/>";
 			TypeContainer tc = TypeContainer.Instance;
 			tc.LoadFromString(xml);
+            Assert.AreNotEqual(0, tc.Errors.Length);
 		}
 	}
 }
